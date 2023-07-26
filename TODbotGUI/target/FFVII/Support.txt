@@ -1,0 +1,13 @@
+Added Cut
+Added Effect
+All
+Counter
+Elemental
+Final Attack
+HP Absorb
+Magic Counter
+Mp Absorb
+Mp Turbo
+Quadra Magic
+Sneak Attack
+Steal As Well
