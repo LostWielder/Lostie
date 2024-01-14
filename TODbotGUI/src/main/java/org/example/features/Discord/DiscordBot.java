@@ -33,7 +33,7 @@ public class DiscordBot {
         while (loginInfo.ready()){
             Token = loginInfo.readLine();
         }
-
+        loginInfo.close();
 
         jda = jdaBuilder
                 .createDefault(Token)

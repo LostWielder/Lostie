@@ -1,12 +1,29 @@
-package org.example.features.Twitch;
+package org.example.features.Twitch.Systems;
 
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.common.enums.CommandPermission;
+import com.github.twitch4j.extensions.domain.Channel;
+import com.github.twitch4j.helix.domain.ChannelInformation;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.example.Bot;
+import org.example.features.Twitch.Games.TimedMessages;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 public class CommandReplySystem extends ListenerAdapter {
     private final Bot bot;
+    TimedMessages TM = new TimedMessages();
+    Random r = new Random();
+    List<String> messages = new ArrayList<>();
+    int messageNumber = 0;
+    String inputMessage;
+
+
+    public static Timer timer = new Timer();
+
 
 
 
@@ -18,9 +35,17 @@ public class CommandReplySystem extends ListenerAdapter {
      */
     public CommandReplySystem(SimpleEventHandler eventHandler, Bot bot) {
         this.bot = bot;
-        eventHandler.onEvent(ChannelMessageEvent.class, commands -> replyToMessage(commands));
+        eventHandler.onEvent(ChannelMessageEvent.class, shoutout -> shoutoutCommand(shoutout));
+        eventHandler.onEvent(ChannelMessageEvent.class, socials -> socialLinks(socials));
+        eventHandler.onEvent(ChannelMessageEvent.class, promo -> botPromo(promo));
         eventHandler.onEvent(ChannelMessageEvent.class, conversion -> internationalConversion(conversion));
+        System.out.println("CRS Bot Loaded");
 
+
+
+
+
+        System.out.println(TM.getMessages().size());
     }
 
 
@@ -30,21 +55,40 @@ public class CommandReplySystem extends ListenerAdapter {
      * Respond to chat messages based on input
      */
 
-    public void replyToMessage(ChannelMessageEvent input)  {
+    public void shoutoutCommand(ChannelMessageEvent input)  {
 
-        String inputMessage = input.getMessage();
+        inputMessage = input.getMessage();
+        String name;
 
-        if(inputMessage.contains("!so")) {
-            String name = inputMessage.substring(5);
+
+        if(inputMessage.contains("!so") && input.getMessageEvent().getClientPermissions().contains(CommandPermission.MODERATOR)) {
+            if (inputMessage.contains("@")){
+                name = inputMessage.substring(5);
+            }else{
+                name = inputMessage.substring(4);
+            }
+
+
 
             this.bot.getTwitchClient().getChat().sendMessage(input.getChannel().getName(), name + " Can be found at https://twitch.tv/"+name);
 
 
 
-        } else if (inputMessage.contains("!discord")) {
-            this.bot.getTwitchClient().getChat().sendMessage(input.getChannel().getName(), "https://discord.gg/4XyKTjKjs3");
+        }
 
-        } else if (inputMessage.trim().contains("!bot")) {
+    }
+
+    public void socialLinks(ChannelMessageEvent input) {
+        inputMessage = input.getMessage();
+
+        if (inputMessage.contains("!discord")) {
+            this.bot.getTwitchClient().getChat().sendMessage(input.getChannel().getName(), "https://discord.gg/4XyKTjKjs3");
+        }
+    }
+
+    public void botPromo(ChannelMessageEvent input){
+       inputMessage = input.getMessage();
+        if (inputMessage.trim().equalsIgnoreCase("!bot")) {
             this.bot.getTwitchClient().getChat().sendMessage(input.getChannel().getName(),"LostDealer is a bot currently being developed by Lost," +
                     " and is written in Java using JDA and Twitch4J. It connects and posts messages and stats from Twitch to Discord!" +
                     " If you're interested feel free to join the testing server on discord for updates," +
@@ -54,7 +98,7 @@ public class CommandReplySystem extends ListenerAdapter {
     }
 
     public void internationalConversion(ChannelMessageEvent input) {
-        String inputMessage = input.getMessage();
+         inputMessage = input.getMessage();
         if (inputMessage.contains("mph")) {
             String s = inputMessage;
             String clean = s.replaceAll("\\D+", "");
@@ -95,7 +139,44 @@ public class CommandReplySystem extends ListenerAdapter {
 
     public void sendMessage(String message){
         this.bot.getTwitchClient().getChat().sendMessage("TheLostWielder",message);
+
     }
+    public void sendMessageOnTimer() throws IOException {
+        if(messages.isEmpty()){
+            TM.populateRandoms();
+            messages = TM.getMessages();
+            //System.out.println("Populated "+ messages.size()+" Messages");
+        }
+
+        TimerTask task = new TimerTask() {
+            public void run() {
+                messageNumber = r.nextInt(TM.getMessages().size());
+
+
+                 bot.getTwitchClient().getChat().sendMessage("TheLostWielder", messages.get(messageNumber));
+               // System.out.println(TM.getMessages().get(messageNumber));
+                //System.out.println(TM.messages.size());
+            }
+        };
+
+        timer.scheduleAtFixedRate(task, 0, 1200000); //DONT FORGET TO FIX THIS BEFORE EXPORT
+    }
+    public void endTimer(){
+        timer.cancel();
+        timer = new Timer();
+
+
+    }
+
+    public void addedRandom(String addedMessage) throws IOException {
+        messages.add(addedMessage);
+        TM.addRandom(addedMessage);
+    }
+
+
+
+
+
 
 
 

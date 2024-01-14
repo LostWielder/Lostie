@@ -6,12 +6,16 @@ import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import org.example.Bot;
 import org.example.TODHome;
+import org.example.features.Twitch.Systems.CommandReplySystem;
+
+import java.io.IOException;
 
 public class TwitchToDiscordInteractions  {
 
     private final Bot bot;
     private final MessageEventListener MEL = new MessageEventListener();
-   // TODHome todHome = new TODHome();
+    private final CommandReplySystem CRS;
+
 
     public  int raidCount = 0;
    public String raiders = "Raiders: ";
@@ -31,15 +35,22 @@ public class TwitchToDiscordInteractions  {
      * @param bot          the bot instance
      * @param eventHandler SimpleEventHandler
      */
-    public TwitchToDiscordInteractions(Bot bot, SimpleEventHandler eventHandler) {
+    public TwitchToDiscordInteractions(Bot bot, SimpleEventHandler eventHandler, CommandReplySystem CRS) {
         this.bot = bot;
+        this.CRS = CRS;
         eventHandler.onEvent(ChannelMessageEvent.class, this::twitchToDiscord);
-        eventHandler.onEvent(ChannelGoLiveEvent.class, this::onGoLive);
         eventHandler.onEvent(FollowEvent.class, this::statsToDiscordFollow);
         eventHandler.onEvent(SubscriptionEvent.class, this::statsToDiscordSubs);
         eventHandler.onEvent(CheerEvent.class, this::statsToDiscordBits);
         eventHandler.onEvent(RaidEvent.class, this::statsToDiscordRaids);
         eventHandler.onEvent(ChannelGoOfflineEvent.class, this::sendStatsToDiscord);
+        eventHandler.onEvent(ChannelGoLiveEvent.class, event -> {
+            try {
+                onGoLive(event);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
     }
 
@@ -58,14 +69,15 @@ public class TwitchToDiscordInteractions  {
         }
     }
 
-    public void onGoLive(ChannelGoLiveEvent event)  {
+    public void onGoLive(ChannelGoLiveEvent event) throws IOException {
 
         try {
             MEL.onGoingLive( "@everyone "+liveMessage+" https://www.twitch.tv/thelostwielder");
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+           throw new RuntimeException(e);
         }
         System.out.println("You are now live");
+        CRS.sendMessageOnTimer();
         //bot.getTwitchClient().getChat().sendMessageToDiscord(event.getChannel().getName(), message);
     }
 
@@ -115,14 +127,10 @@ public class TwitchToDiscordInteractions  {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        CRS.endTimer();
     }
 
-/*
-    public void testThing() throws InterruptedException {
-        MEL.sendMessageToDiscord(liveMessage);
-    }
 
- */
 
 
 }

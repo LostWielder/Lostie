@@ -7,7 +7,14 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.ITwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import org.example.features.Discord.TwitchToDiscordInteractions;
-import org.example.features.Twitch.*;
+import org.example.features.Twitch.Games.QuoteSystem;
+import org.example.features.Twitch.Notifications.ChannelMessageOnClip;
+import org.example.features.Twitch.Notifications.ChannelNotificationOnFollow;
+import org.example.features.Twitch.Notifications.ChannelNotificationOnLive;
+import org.example.features.Twitch.Notifications.ChannelNotificationOnSubscription;
+import org.example.features.Twitch.Systems.CommandReplySystem;
+import org.example.features.Twitch.Systems.EventLoggerToText;
+import org.example.features.Twitch.Systems.WriteChannelChatToConsole;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,13 +84,10 @@ public class Bot {
         System.out.println("Console Logger Loaded");
         CommandReplySystem commandReplySystem = new CommandReplySystem(eventHandler,this);
         QuoteSystem quoteSystem = new QuoteSystem(eventHandler,this);
-       // FinalFantasy finalFantasy = new FinalFantasy(eventHandler,this);
-        // finalFantasy.readFinalFantasyItems();
         EventLoggerToText eventLoggerToText = new EventLoggerToText(eventHandler,this);
-       // TimedMessages timedMessages = new TimedMessages(eventHandler, this);
-       // timedMessages.sendMessageOnTimer();
         System.out.println("Expanded features Loaded");
-        TwitchToDiscordInteractions twitchToDiscordInteractions = new TwitchToDiscordInteractions(this, eventHandler);
+        TwitchToDiscordInteractions twitchToDiscordInteractions = new TwitchToDiscordInteractions(this, eventHandler, commandReplySystem);
+        ChannelMessageOnClip CMOP = new ChannelMessageOnClip(this, eventHandler);
         System.out.println("Twitch To Discord Features loaded");
 
 
@@ -111,13 +115,14 @@ public class Bot {
         // Connect to all channels
         for (String channel : configuration.getChannels()) {
             twitchClient.getChat().joinChannel(channel);
-        }
 
+        }
+        System.out.println("Joined");
         // Enable client helper for Stream GoLive / GoOffline / GameChange / TitleChange Events
         twitchClient.getClientHelper().enableStreamEventListener(configuration.getChannels());
         // Enable client helper for Follow Event
         twitchClient.getClientHelper().enableFollowEventListener(configuration.getChannels());
-        this.getTwitchClient().getChat().sendMessage("TheLostWielder","Dealer has awoken");
+        this.getTwitchClient().getChat().sendMessage("TheLostWielder","TODbot Initialized. Welcome to Twitch chat! How may I compute for you today?");
     }
 
     public ITwitchClient getTwitchClient() {

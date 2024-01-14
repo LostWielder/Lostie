@@ -2,9 +2,9 @@ package org.example;
 
 import org.example.features.Discord.DiscordBot;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 
 public class Main {
 
@@ -14,6 +14,7 @@ public class Main {
         TODHome todHome = new TODHome();
 
 
+
         todHome.Display();
         Bot bot = new Bot();
         DiscordBot dBot = new DiscordBot();
@@ -21,6 +22,11 @@ public class Main {
         dBot.LaunchDiscordBot();
         bot.start();
         todHome.showConnected();
+
+
+
+
+
 
 
 

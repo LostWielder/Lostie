@@ -85,5 +85,14 @@ public class MessageEventListener extends ListenerAdapter {
 
     }
 
+    public void postClipsToDiscord(String message) throws InterruptedException {
+        DiscordBot.jda.awaitReady();
+        List<TextChannel> channels = DiscordBot.jda.getTextChannelsByName("\uD83C\uDF9Ethe-theater-room", false);
+        for (TextChannel ch : channels) {
+            ch.sendMessage(message).queue();
+        }
+
+    }
+
 
 }
