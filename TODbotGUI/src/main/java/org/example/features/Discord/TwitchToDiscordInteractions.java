@@ -5,7 +5,7 @@ import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import org.example.Bot;
-import org.example.TODHome;
+import org.example.features.Twitch.Games.TimedMessages;
 import org.example.features.Twitch.Systems.CommandReplySystem;
 
 import java.io.IOException;
@@ -15,6 +15,8 @@ public class TwitchToDiscordInteractions  {
     private final Bot bot;
     private final MessageEventListener MEL = new MessageEventListener();
     private final CommandReplySystem CRS;
+
+    private TimedMessages timedMessages;
 
 
     public  int raidCount = 0;
@@ -77,7 +79,7 @@ public class TwitchToDiscordInteractions  {
            throw new RuntimeException(e);
         }
         System.out.println("You are now live");
-        CRS.sendMessageOnTimer();
+        timedMessages.sendMessageOnTimer();
         //bot.getTwitchClient().getChat().sendMessageToDiscord(event.getChannel().getName(), message);
     }
 
@@ -127,7 +129,7 @@ public class TwitchToDiscordInteractions  {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        CRS.endTimer();
+        timedMessages.endTimer();
     }
 
 

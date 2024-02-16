@@ -7,7 +7,10 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.ITwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import org.example.features.Discord.TwitchToDiscordInteractions;
+import org.example.features.Twitch.Games.Giveaway;
+import org.example.features.Twitch.Games.Moods;
 import org.example.features.Twitch.Games.QuoteSystem;
+import org.example.features.Twitch.Games.TimedMessages;
 import org.example.features.Twitch.Notifications.ChannelMessageOnClip;
 import org.example.features.Twitch.Notifications.ChannelNotificationOnFollow;
 import org.example.features.Twitch.Notifications.ChannelNotificationOnLive;
@@ -61,6 +64,7 @@ public class Bot {
                  */
                 .withChatAccount(credential)
                 .withEnableChat(true)
+                .withEnablePubSub(true)
                 /*
                  * Build the TwitchClient Instance
                  */
@@ -80,12 +84,21 @@ public class Bot {
         ChannelNotificationOnFollow channelNotificationOnFollow = new ChannelNotificationOnFollow(eventHandler);
         ChannelNotificationOnSubscription channelNotificationOnSubscription = new ChannelNotificationOnSubscription(eventHandler);
         System.out.println("Basic features loaded");
+
+
         WriteChannelChatToConsole writeChannelChatToConsole = new WriteChannelChatToConsole(eventHandler);
         System.out.println("Console Logger Loaded");
+
+
         CommandReplySystem commandReplySystem = new CommandReplySystem(eventHandler,this);
         QuoteSystem quoteSystem = new QuoteSystem(eventHandler,this);
         EventLoggerToText eventLoggerToText = new EventLoggerToText(eventHandler,this);
         System.out.println("Expanded features Loaded");
+
+
+        Giveaway giveaway = new Giveaway(eventHandler,this);
+        TimedMessages timedMessages = new TimedMessages(eventHandler, this);
+        Moods moods = new Moods(this,eventHandler);
         TwitchToDiscordInteractions twitchToDiscordInteractions = new TwitchToDiscordInteractions(this, eventHandler, commandReplySystem);
         ChannelMessageOnClip CMOP = new ChannelMessageOnClip(this, eventHandler);
         System.out.println("Twitch To Discord Features loaded");
@@ -122,6 +135,9 @@ public class Bot {
         twitchClient.getClientHelper().enableStreamEventListener(configuration.getChannels());
         // Enable client helper for Follow Event
         twitchClient.getClientHelper().enableFollowEventListener(configuration.getChannels());
+        twitchClient.getPubSub().listenForFollowingEvents(new OAuth2Credential(
+                "twitch",
+                configuration.getCredentials().get("irc")),configuration.getChannels().get(0));
         this.getTwitchClient().getChat().sendMessage("TheLostWielder","TODbot Initialized. Welcome to Twitch chat! How may I compute for you today?");
     }
 

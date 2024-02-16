@@ -15,14 +15,9 @@ import java.util.List;
 
 public class CommandReplySystem extends ListenerAdapter {
     private final Bot bot;
-    TimedMessages TM = new TimedMessages();
-    Random r = new Random();
-    List<String> messages = new ArrayList<>();
-    int messageNumber = 0;
     String inputMessage;
 
 
-    public static Timer timer = new Timer();
 
 
 
@@ -39,13 +34,9 @@ public class CommandReplySystem extends ListenerAdapter {
         eventHandler.onEvent(ChannelMessageEvent.class, socials -> socialLinks(socials));
         eventHandler.onEvent(ChannelMessageEvent.class, promo -> botPromo(promo));
         eventHandler.onEvent(ChannelMessageEvent.class, conversion -> internationalConversion(conversion));
+
         System.out.println("CRS Bot Loaded");
 
-
-
-
-
-        System.out.println(TM.getMessages().size());
     }
 
 
@@ -98,7 +89,7 @@ public class CommandReplySystem extends ListenerAdapter {
     }
 
     public void internationalConversion(ChannelMessageEvent input) {
-         inputMessage = input.getMessage();
+         inputMessage = input.getMessage().toLowerCase();
         if (inputMessage.contains("mph")) {
             String s = inputMessage;
             String clean = s.replaceAll("\\D+", "");
@@ -141,37 +132,9 @@ public class CommandReplySystem extends ListenerAdapter {
         this.bot.getTwitchClient().getChat().sendMessage("TheLostWielder",message);
 
     }
-    public void sendMessageOnTimer() throws IOException {
-        if(messages.isEmpty()){
-            TM.populateRandoms();
-            messages = TM.getMessages();
-            //System.out.println("Populated "+ messages.size()+" Messages");
-        }
-
-        TimerTask task = new TimerTask() {
-            public void run() {
-                messageNumber = r.nextInt(TM.getMessages().size());
 
 
-                 bot.getTwitchClient().getChat().sendMessage("TheLostWielder", messages.get(messageNumber));
-               // System.out.println(TM.getMessages().get(messageNumber));
-                //System.out.println(TM.messages.size());
-            }
-        };
 
-        timer.scheduleAtFixedRate(task, 0, 1200000); //DONT FORGET TO FIX THIS BEFORE EXPORT
-    }
-    public void endTimer(){
-        timer.cancel();
-        timer = new Timer();
-
-
-    }
-
-    public void addedRandom(String addedMessage) throws IOException {
-        messages.add(addedMessage);
-        TM.addRandom(addedMessage);
-    }
 
 
 

@@ -2,11 +2,6 @@ package org.example.features.Twitch.Systems;
 
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import org.example.Main;
-import org.example.TODHome;
-
-import javax.swing.*;
-import java.awt.*;
 
 public class WriteChannelChatToConsole {
 
